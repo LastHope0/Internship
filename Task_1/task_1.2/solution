@@ -1,0 +1,35 @@
+#! Task 1
+# Вывести размеры разделов диска в отдельный файл. Отсортировать количество столбцов до трех, оставив только Filesystem, Use%, Mounted on.
+
+    df -h | awk '{printf("%-20s%-10s%-10s\n", $1,$5,$6)}' > disk_status
+
+
+#! Task 2
+# Узнать размер всех файлов и папок в директории /etc. Отсортировать вывод так, чтобы показывало только 10 самых больших файлов.
+    du -h /etc/* | sort -rh | head -n 10
+
+
+#! Task 3
+# Cоздать файл со следующим содержанием. 
+# NDS/A
+# NSDA
+# ANS!D
+# NAD/A
+ 
+    echo -e 'NDS/A\n\
+             NSDA\n\
+             ANS!D\n\
+             NAD/A' > file
+    
+
+# Вывести строки NDS/A и NAD/A из файла используя awk или sed(regexp). 
+    awk '/NDS\/A|NAD\/A/' file
+
+
+#! Task 3
+# Вывести пронумерованные строчки из /etc/passwd, в которых есть оболочка /bin/bash, и перенаправить вывод в файл.
+    cat /etc/passwd | awk 'BEGIN{i = 0} {print(i ":" $NF); i++}' > file
+
+
+# Заменить все строчки с /bin/sh на /bin/bash(проводить на бэкапе).
+    sudo sed -i 's:/bin/sh:/bin/bash:g' /etc/passwd
