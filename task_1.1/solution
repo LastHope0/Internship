@@ -1,0 +1,77 @@
+#! Task 1
+# Raymond должен заходить только по SSH ключу на инстанс. А John должен каждый раз вводить свой пароль при попытке зайти на инстанс и не иметь возможности зайти по ssh ключу.
+# Raymond должен иметь доступ к sudo, а John не сможет использовать его.
+
+#? Server
+   
+    # Create users group
+    sudo groupadd aliens
+
+    # Add user Raymond
+    sudo useradd -m -s /bin/bash -g aliens Raymond
+    sudo usermod -aG sudo Raymond
+
+    # Create password
+    sudo passwd Raymond
+
+#? On Raymond host 
+
+    # Create key pair
+    ssh-keygen
+
+    # Copy open key to server
+    cat ~/.ssh/id_rsa.pub | ssh Raymon@[remote_host] "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+
+
+#? Again server
+
+    # Add user John
+    sudo useradd -m -s /bin/bash -g aliens John
+    
+    # Create password
+    sudo passwd John
+
+
+    # Edit /etc/ssh/sshd_config
+
+        PermitRootLogin no
+        PubkeyAuthentication yes
+        PasswordAuthentication no
+
+        Match User Raymond
+            PubkeyAuthentication yes
+            PasswordAuthentication no
+
+        Match User John 
+            PubkeyAuthentication no
+            PasswordAuthentication yes
+
+        systemctl restart sshd
+        
+#! Task 2
+#  Из под пользователя Raymond создать документ, 
+#  Используя права доступа сделать так, чтобы пользователь John не смог редактировать содержимое документа, но смог его прочитать. 
+#  Из под пользователя John создать shell скрипт(с любой командой) и дать возможность запускать его пользователю Raymond.
+
+# Raymond
+    echo "Hello world" >> hello
+    # Default -rw- r-- r--
+
+# John 
+    echo -e '#!/bin/bash\n\ndate' > script.sh
+    chmod 754 script.sh
+
+#! Task 3
+# Поменять интерпретатор по умолчанию пользователю John(сделать, чтобы был bash). 
+    sudo chsh -s /bin/bash John
+
+#Создать нового пользователя так, чтобы у него сразу был интерпретатор sh по умолчанию.
+#Добавить нового пользователя в группу пользователя John, проверить, сможет ли он запускать созданный ранее shell скрипт.
+    sudo useradd -m -s /bin/sh -g aliens Petya
+
+#! Task 4
+# Создать на своей хостовой машине файл, после чего прокинуть его на инстанс с помощью scp.
+     scp /home/lasthope/spam [user]@[ip]:/home/[user]
+
+
+
